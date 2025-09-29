@@ -9,7 +9,7 @@ module.exports = async (ctx) => {
         ? `https://t.me/${ctx.from.username}`
         : `tg://user?id=${ctx.from.id}`;
     await ctx.replyWithSticker(stickerId)
-    await ctx.reply(`<b>Assalomu alaykum <a href="${profileLink}">${name}</a>. \nIxlosbek Erkinovning Telegram Botiga xush kelibsiz!</b>`, {
+    await ctx.reply(`<b>Assalomu alaykum <a href="${profileLink}">${name}</a>. \nIxlosbek Erkinovning Telegram Botiga xush kelibsiz! \n \nIltimos Botdan to'liq foydalanish uchun quyidagi \n"Ro'yxatdan o'tish" tugmasini bosing.</b>`, {
         parse_mode: "HTML",
         disable_web_page_preview: true
     })
