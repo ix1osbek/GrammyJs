@@ -42,7 +42,18 @@ module.exports = async (ctx) => {
         })
 
     } else {
-        await ctx.reply("❌ Men sizni tushunmadim.\n/start yoki menyudan tugma tanlang.");
+
+        const name = ctx.from.first_name || "Do'stim"
+        const profileLink = ctx.from.username
+            ? `https://t.me/${ctx.from.username}`
+            : `tg://user?id=${ctx.from.id}`;
+        await ctx.react("👀")
+        await ctx.replyWithAnimation("https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNjU0d2poeHh5OWxnejVzNTJ4cXRtcGEza2k0YzRiODQ2N3dzajJ3aSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/8L0Pky6C83SzkzU55a/giphy.gif")
+
+        await ctx.reply(`<b>Iltimos <a href="${profileLink}">${name}</a>. Botdan to'g'ri foydalaning. \n\nYoki qayta /start qiling!</b>`, {
+            parse_mode: "HTML",
+            disable_web_page_preview: true, // linkga razm solmaslik
+        })
     }
 };
 

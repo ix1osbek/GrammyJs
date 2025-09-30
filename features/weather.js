@@ -36,10 +36,9 @@ module.exports = (bot) => {
             }
 
             const weather = `
-🌍 Joy: <b>${data.name}</b>
+🌍 Manzilingiz: <b>${data.name}</b>
 🌡 Harorat: <b>${data.main.temp}°C</b>
 🤔 His qilinadi: <b>${data.main.feels_like}°C</b>
-☁️ Holati: <b>${data.weather[0].description}</b>
 💨 Shamol tezligi: <b>${data.wind.speed} m/s</b>
             `;
 
