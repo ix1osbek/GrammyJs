@@ -14,6 +14,7 @@ const mainMenuKeyboard = new Keyboard()
     .text("📱 Social networks")
     .text("⚡️ Other functions")
     .resized();
+
 module.exports = {
     contactKeyboard,
     mainMenuKeyboard

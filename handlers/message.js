@@ -1,4 +1,4 @@
-const { aboutKeyboard, socialNetworks } = require("../keyboards/inline.js");
+const { aboutKeyboard, socialNetworks, otherFunctionButtons } = require("../keyboards/inline.js");
 const path = require("path")
 const { InputFile } = require("grammy")
 /**
@@ -27,7 +27,23 @@ module.exports = async (ctx) => {
         await ctx.reply("🌐 Barcha ijtimoiy tarmoqlar ro'yxati!", {
             reply_markup: socialNetworks
         });
+    } else if (text === "⚡️ Other functions") {
+        const gif = "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTZ1aWlpemJpbDR3Y3g4ZmxtNWNxMjNodzZ3dGVkMTV6dDhwMGNwbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/H03PuVdwREB21ANkLX/giphy.gif"
+        await ctx.replyWithAnimation(gif)
+        await ctx.reply("O'zingizga kerakli bo'limdan foydalanishingiz mumkin 💣", {
+            reply_markup: otherFunctionButtons
+        })
+    } else if (text === "⬅️ Back") {
+        const gif = "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExOTZ1aWlpemJpbDR3Y3g4ZmxtNWNxMjNodzZ3dGVkMTV6dDhwMGNwbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/H03PuVdwREB21ANkLX/giphy.gif"
+        await ctx.replyWithAnimation(gif)
+        await ctx.reply("O'zingizga kerakli bo'limdan foydalanishingiz mumkin 💣", {
+            reply_markup: otherFunctionButtons,
+            // remove_keyboard: true
+        })
+
     } else {
         await ctx.reply("❌ Men sizni tushunmadim.\n/start yoki menyudan tugma tanlang.");
     }
 };
+
+

@@ -15,6 +15,7 @@ bot.command("start", startCommand)
 bot.on("message:contact", contactHandler)
 bot.on("message:text", messageHandler)
 callbackHandler(bot, mainMenuKeyboard)
+require("./features/weather")(bot);
 
 
 /// Errors

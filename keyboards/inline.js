@@ -28,7 +28,13 @@ const socialNetworks = new InlineKeyboard()
     .text("⬅️ Back", "back")
 
 
+
+const otherFunctionButtons = new InlineKeyboard()
+    .text("🌤 Ob-havo", "weather")
+    .row()
+    .text("⬅️ Back menu", "back")
 module.exports = {
     aboutKeyboard,
-    socialNetworks
+    socialNetworks,
+    otherFunctionButtons
 };
