@@ -1,15 +1,18 @@
 const dotenv = require("dotenv").config()
 const { Bot, GrammyError, HttpError } = require("grammy")
 const startCommand = require("./commands/start.js")
+const contactHandler = require("./handlers/contact");
+const messageHandler = require("./handlers/message");
 
 
 const bot = new Bot(process.env.BOT_TOKEN)
 
 bot.command("start", startCommand)
 
-// bot.on("message", async (ctx) => {
-//     await ctx.reply("Iltimos kuting...")
-// })
+///// Handlers
+
+bot.on("message:contact", contactHandler)
+bot.on("message:text", messageHandler)
 
 /// Errors
 
