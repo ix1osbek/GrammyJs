@@ -3,7 +3,8 @@ const { Bot, GrammyError, HttpError } = require("grammy")
 const startCommand = require("./commands/start.js")
 const contactHandler = require("./handlers/contact");
 const messageHandler = require("./handlers/message");
-
+const callbackHandler = require("./handlers/callbacks.js");
+const { mainMenuKeyboard } = require("./keyboards/reply.js");
 
 const bot = new Bot(process.env.BOT_TOKEN)
 
@@ -13,6 +14,8 @@ bot.command("start", startCommand)
 
 bot.on("message:contact", contactHandler)
 bot.on("message:text", messageHandler)
+callbackHandler(bot, mainMenuKeyboard)
+
 
 /// Errors
 
@@ -22,7 +25,7 @@ bot.catch((err) => {
     const e = err.error
 
     if (e instanceof GrammyError) {
-        console.error(`Botda xatolik: ${e.description}`)
+        console.log(e)
     } else if (e instanceof HttpError) {
         console.error(`Botda xatolik. Telegram bilan bog'lanish imkoni bo'lmadi... ${e}`)
     } else {

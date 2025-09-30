@@ -24,14 +24,9 @@ module.exports = async (ctx) => {
             reply_markup: aboutKeyboard,
         });
     } else if (text === "📱 Social networks") {
-        try {
-            await ctx.reply("🌐 Barcha ijtimoiy tarmoqlar ro'yxati!", {
-                reply_markup: socialNetworks
-            });
-        } catch (error) {
-            console.log(error);
-
-        }
+        await ctx.reply("🌐 Barcha ijtimoiy tarmoqlar ro'yxati!", {
+            reply_markup: socialNetworks
+        });
     } else {
         await ctx.reply("❌ Men sizni tushunmadim.\n/start yoki menyudan tugma tanlang.");
     }
