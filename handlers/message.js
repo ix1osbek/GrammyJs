@@ -1,4 +1,4 @@
-const { aboutKeyboard } = require("../keyboards/inline.js");
+const { aboutKeyboard, socialNetworks } = require("../keyboards/inline.js");
 const path = require("path")
 const { InputFile } = require("grammy")
 /**
@@ -23,8 +23,15 @@ module.exports = async (ctx) => {
         await ctx.reply("Men haqimdagi barcha ma'lumotlarni ushbu website orqali bilib olishingiz mumkin.", {
             reply_markup: aboutKeyboard,
         });
-    } else if (text === "📢 Channel") {
-        await ctx.reply("📢 Bizning kanal: https://t.me/YourChannel");
+    } else if (text === "📱 Social networks") {
+        try {
+            await ctx.reply("🌐 Barcha ijtimoiy tarmoqlar ro'yxati!", {
+                reply_markup: socialNetworks
+            });
+        } catch (error) {
+            console.log(error);
+
+        }
     } else {
         await ctx.reply("❌ Men sizni tushunmadim.\n/start yoki menyudan tugma tanlang.");
     }

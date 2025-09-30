@@ -1,9 +1,9 @@
 const { InlineKeyboard } = require("grammy");
 
-const aboutKeyboard = new InlineKeyboard().url(
-    "🌐 Go to my website",
-    "https://ixlosbek.uz"
-);
+const aboutKeyboard = new InlineKeyboard()
+    .url("🌐 Go to my website", "https://ixlosbek.uz")
+// .row()
+// .url("hsbdse", "jkasndjas")
 
 
 const socialNetworks = new InlineKeyboard()
@@ -25,7 +25,6 @@ const socialNetworks = new InlineKeyboard()
     .row()
     .url("🌐 Blog website", "https://ixlosware.uz/")
     .row()
-    .url("📧 Email", "mailto:ixlosbekerkinov.work@gmail.com")
     .text("⬅️ Back", "back")
 
 
