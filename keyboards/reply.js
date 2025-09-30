@@ -8,10 +8,11 @@ const contactKeyboard = new Keyboard()
 /////// home menu
 
 const mainMenuKeyboard = new Keyboard()
-    .text("📄 Resume")
     .text("ℹ️ About")
+    .text("📄 Resume")
     .row()
-    .text("📢 Channel")
+    .text("📱 Social networks")
+    .text("⚡️ Other functions")
     .resized();
 module.exports = {
     contactKeyboard,

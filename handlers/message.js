@@ -9,7 +9,7 @@ module.exports = async (ctx) => {
     const text = ctx.message.text;
 
     if (text === "📄 Resume") {
-
+        await ctx.react("⚡")
         const waitingMsg = await ctx.reply("⏳")
         const filePath = path.resolve("./Ixlosbek-Erkinov-Rezyume.pdf");
         const file = new InputFile(filePath);
