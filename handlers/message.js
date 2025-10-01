@@ -1,12 +1,20 @@
 const { aboutKeyboard, socialNetworks, otherFunctionButtons } = require("../keyboards/inline.js");
 const path = require("path")
 const { InputFile } = require("grammy")
+const geminiAI = require("../features/geminiAI.js");
+const { handleAI } = require("../features/geminiAI.js")
 /**
  * @param {import("grammy").Context} ctx
 */
 
 module.exports = async (ctx) => {
     const text = ctx.message.text;
+
+
+    // 🔹 AI rejimi
+    if (ctx.session.awaitingAI) {
+        return handleAI(ctx);
+    }
 
     if (text === "📄 Resume") {
         await ctx.react("⚡")

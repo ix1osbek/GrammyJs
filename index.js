@@ -1,5 +1,5 @@
 const dotenv = require("dotenv").config()
-const { Bot, GrammyError, HttpError } = require("grammy")
+const { Bot, GrammyError, HttpError, session } = require("grammy")
 const startCommand = require("./commands/start.js")
 const contactHandler = require("./handlers/contact");
 const messageHandler = require("./handlers/message");
@@ -8,22 +8,31 @@ const { mainMenuKeyboard } = require("./keyboards/reply.js");
 
 const bot = new Bot(process.env.BOT_TOKEN)
 
+// Session middleware
+bot.use(session({
+    initial: () => ({
+        awaitingAI: false,
+    }),
+}));
+
 bot.command("start", startCommand)
 
-///// Handlers
-
+// Handlers
 bot.on("message:contact", contactHandler)
 bot.on("message:text", messageHandler)
 callbackHandler(bot, mainMenuKeyboard)
 require("./features/weather")(bot);
 
+// ✅ GeminiAI
+require("./features/geminiAI").setupAI(bot);
 
-/// Errors
 
+// Errors
 bot.catch((err) => {
     const ctx = err.ctx
     console.error(`Botda xatolik yuz berdi. ${ctx.update.update_id}`)
     const e = err.error
+    console.log(err);
 
     if (e instanceof GrammyError) {
         console.log(e)

@@ -31,6 +31,7 @@ const socialNetworks = new InlineKeyboard()
 
 const otherFunctionButtons = new InlineKeyboard()
     .text("🌤 Ob-havo", "weather")
+    .text("🤖 AI yordamchi" , "ai")
     .row()
     .text("⬅️ Back menu", "back")
 module.exports = {
