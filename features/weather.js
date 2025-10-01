@@ -1,5 +1,4 @@
 // const fetch = require("node-fetch");
-
 const { otherFunctionButtons } = require("../keyboards/inline");
 
 /**
@@ -9,6 +8,24 @@ module.exports = (bot) => {
     bot.callbackQuery("weather", async (ctx) => {
         await ctx.answerCallbackQuery();
 
+        const chatId = ctx.chat.id;
+        const currentMsgId = ctx.update.callback_query.message.message_id;
+
+        // 🔹 Oldingi 2 ta xabarni xavfsiz o‘chirish
+        for (let i = 0; i < 2; i++) {
+            const targetId = currentMsgId - i;
+            try {
+                await ctx.api.deleteMessage(chatId, targetId);
+            } catch (err) {
+                if (err.description?.includes("message to delete not found")) {
+                    // ❗ Bu normal holat — foydalanuvchi xabari yoki allaqachon o‘chgan
+                } else {
+                    console.error("❌ deleteMessage xatolik:", err.description);
+                }
+            }
+        }
+
+        // 🔹 Lokatsiya so‘rash
         await ctx.reply("📍 Lokatsiyangizni yuboring:", {
             reply_markup: {
                 keyboard: [
@@ -20,6 +37,7 @@ module.exports = (bot) => {
             }
         });
     });
+
 
     bot.on("message:location", async (ctx) => {
         try {

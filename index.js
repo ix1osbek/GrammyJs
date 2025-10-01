@@ -5,6 +5,8 @@ const contactHandler = require("./handlers/contact");
 const messageHandler = require("./handlers/message");
 const callbackHandler = require("./handlers/callbacks.js");
 const { mainMenuKeyboard } = require("./keyboards/reply.js");
+const { otherFunctionButtons } = require("./keyboards/inline.js");
+const setupBack = require("./handlers/back.js");
 
 const bot = new Bot(process.env.BOT_TOKEN)
 
@@ -25,7 +27,8 @@ require("./features/weather")(bot);
 
 // ✅ GeminiAI
 require("./features/geminiAI").setupAI(bot);
-
+// Back handler
+setupBack(bot, otherFunctionButtons);
 
 // Errors
 bot.catch((err) => {
