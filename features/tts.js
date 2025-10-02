@@ -33,8 +33,32 @@ async function handleTTS(ctx) {
     const { language = "uz", model = "gulnoza", mood = "neutral" } =
         ctx.session.ttsSettings || {};
 
-    // 🔹 Kutish xabari
-    const waitMsg = await ctx.reply("🎙️ Ovoz yaratilmoqda...");
+    // 🔹 Kutish rejimi (progress bar)
+    const waitMsg = await ctx.reply(
+        "🎧 <b>Ovoz tayyorlanmoqda...</b>\n\n⏳ [░░░░░░░░░░] 0%",
+        { parse_mode: "HTML" }
+    );
+
+    const totalSteps = 10; // progress bo'linmalari
+    const stepTime = 700;  // har bir bosqich davomiyligi (ms) = 0.7 sek
+
+    for (let i = 1; i <= totalSteps; i++) {
+        const bar = "▓".repeat(i) + "░".repeat(totalSteps - i);
+        const percent = i * 10;
+
+        await new Promise((res) => setTimeout(res, stepTime));
+
+        try {
+            await ctx.api.editMessageText(
+                ctx.chat.id,
+                waitMsg.message_id,
+                `🎧 <b>Ovoz tayyorlanmoqda...</b>\n\n⏳ [${bar}] ${percent}%`,
+                { parse_mode: "HTML" }
+            );
+        } catch (e) {
+            // xatoni e'tiborsiz qoldiramiz, boshqa funksiyalarga tegmaymiz
+        }
+    }
 
     try {
         // 🔹 API chaqirish
@@ -146,7 +170,7 @@ function setupTTS(bot) {
             {
                 parse_mode: "HTML"
             }
-        );
+        )
     });
 
     // Orqaga tugmasi
