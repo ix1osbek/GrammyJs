@@ -15,7 +15,7 @@ async function handleTTS(ctx) {
                 reply_markup: new InlineKeyboard()
                     .text("♻️ Qayta urinish", "tts")
                     .row()
-                    .text("⬅️ Orqaga", "back"),
+                    .text("⬅️ Orqaga", "back2"),
             }
         );
     }
@@ -45,7 +45,7 @@ async function handleTTS(ctx) {
             reply_markup: new InlineKeyboard()
                 .text("♻️ Yangi TTS", "tts")
                 .row()
-                .text("⬅️ Orqaga", "back"),
+                .text("⬅️ Orqaga", "back2"),
         });
 
         try {
@@ -79,7 +79,7 @@ function setupTTS(bot) {
             .text("😊 Quvnoq", "tts_mood_happy").row()
             .text("😐 Oddiy", "tts_mood_neutral").row()
             .text("😢 Xafa", "tts_mood_sad").row()
-            .text("⬅️ Orqaga", "back");
+            .text("⬅️ Orqaga", "back2");
 
         await ctx.reply("<b>😎 Kayfiyatni tanlang:</b>", {
             parse_mode: "HTML",
@@ -101,7 +101,7 @@ function setupTTS(bot) {
     });
 
     // Orqaga tugmasi
-    bot.callbackQuery("back", async (ctx) => {
+    bot.callbackQuery("back2", async (ctx) => {
         await ctx.answerCallbackQuery();
         ctx.session.ttsStage = null;
         ctx.session.ttsSettings = null;
@@ -122,4 +122,4 @@ function setupTTS(bot) {
 
 }
 
-module.exports = { setupTTS, handleTTS };
+module.exports = { setupTTS, handleTTS }
