@@ -1,10 +1,20 @@
 const axios = require("axios");
-const { InlineKeyboard } = require("grammy");
+const { InlineKeyboard, Keyboard } = require("grammy");
 
 // 🔹 TTS handler
 async function handleTTS(ctx) {
-    if (!ctx.message || !ctx.message.text) return;
-
+    // if (!ctx.message || !ctx.message.text) return;
+    if (!ctx.message || !ctx.message.text) {
+        await ctx.reply("❌ Iltimos, <b>matn</b> formatidan foydalaning.", {
+            parse_mode: "HTML",
+            reply_markup: new InlineKeyboard()
+                .text("♻️ Qayta urinish", "tts2")
+                .row()
+                .text("⬅️ Orqaga", "back2"),
+        });
+        ctx.session.awaitingAI = true
+        return;
+    }
     const userText = ctx.message.text.trim();
     if (!userText) return;
 
@@ -13,7 +23,7 @@ async function handleTTS(ctx) {
             `⚠️ Matn juda uzun. Maksimal uzunlik: 250 ta belgi.\nSiz yubordingiz: ${userText.length} ta belgi.`,
             {
                 reply_markup: new InlineKeyboard()
-                    .text("♻️ Qayta urinish", "tts")
+                    .text("♻️ Qayta urinish", "tts2")
                     .row()
                     .text("⬅️ Orqaga", "back2"),
             }
@@ -87,6 +97,43 @@ function setupTTS(bot) {
         });
     });
 
+
+    /////// qayta urinish uchun TTS 
+    bot.callbackQuery("tts2", async (ctx) => {
+        await ctx.answerCallbackQuery();
+
+        // Default sozlamalar
+        ctx.session.ttsSettings = { language: "uz", model: "gulnoza" };
+        ctx.session.ttsStage = "mood";
+
+        try {
+            // Callback tugmasi bosilgan xabarni o'chirish
+            await ctx.api.deleteMessage(ctx.chat.id, ctx.callbackQuery.message.message_id);
+
+            // Session ichida oldingi xabar ID saqlangan bo'lsa, uni ham o'chirish
+            if (ctx.session.prevMsgId) {
+                await ctx.api.deleteMessage(ctx.chat.id, ctx.session.prevMsgId);
+                ctx.session.prevMsgId = null; // keyin kerak bo'lmasa tozalaymiz
+            }
+        } catch (e) {
+            console.log("Xabar o'chirishda xato:", e.description);
+        }
+
+        const keyboard = new InlineKeyboard()
+            .text("😊 Quvnoq", "tts_mood_happy").row()
+            .text("😐 Oddiy", "tts_mood_neutral").row()
+            .text("😢 Xafa", "tts_mood_sad").row()
+            .text("⬅️ Orqaga", "back2");
+
+        const sent = await ctx.reply("<b>😎 Kayfiyatni tanlang:</b>", {
+            parse_mode: "HTML",
+            reply_markup: keyboard,
+        });
+
+        // Yangi xabar ID sini saqlab qo'yamiz
+        ctx.session.prevMsgId = sent.message_id;
+    });
+
     // Kayfiyat tanlash
     bot.callbackQuery(/^tts_mood_(\w+)/, async (ctx) => {
         const mood = ctx.match[1];
@@ -96,7 +143,9 @@ function setupTTS(bot) {
 
         await ctx.editMessageText(
             "📝 Endi matningizni yuboring (maks. <b>250 ta belgi</b>):",
-            { parse_mode: "HTML" }
+            {
+                parse_mode: "HTML"
+            }
         );
     });
 
