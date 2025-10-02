@@ -2,8 +2,6 @@ const { InlineKeyboard } = require("grammy");
 
 const aboutKeyboard = new InlineKeyboard()
     .url("🌐 Go to my website", "https://ixlosbek.uz")
-// .row()
-// .url("hsbdse", "jkasndjas")
 
 
 const socialNetworks = new InlineKeyboard()
@@ -33,7 +31,7 @@ const otherFunctionButtons = new InlineKeyboard()
     .text("🌤 Ob-havo", "weather")
     .text("🤖 AI yordamchi", "ai")
     .row()
-    .text("🖥 Online meeting belgilash", "meet")
+    .url("🖥 Online meeting belgilash", process.env.MEETING_LINK)
     .row()
     .text("⬅️ Back menu", "back")
 module.exports = {
