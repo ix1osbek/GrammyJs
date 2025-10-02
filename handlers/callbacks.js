@@ -35,5 +35,5 @@ module.exports = (bot, mainMenuKeyboard) => {
         await ctx.reply("O'zingizga kerakli bo'limdan foydalanishingiz mumkin 💣", {
             reply_markup: otherFunctionButtons,
         });
-    });
-};
+    })
+}
