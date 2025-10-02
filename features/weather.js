@@ -10,6 +10,7 @@ module.exports = (bot) => {
 
         const chatId = ctx.chat.id;
         const currentMsgId = ctx.update.callback_query.message.message_id;
+        ctx.session.awaitingWeather = true;
 
         // 🔹 Oldingi 2 ta xabarni xavfsiz o‘chirish
         for (let i = 0; i < 2; i++) {
@@ -18,7 +19,6 @@ module.exports = (bot) => {
                 await ctx.api.deleteMessage(chatId, targetId);
             } catch (err) {
                 if (err.description?.includes("message to delete not found")) {
-                    // ❗ Bu normal holat — foydalanuvchi xabari yoki allaqachon o‘chgan
                 } else {
                     console.error("❌ deleteMessage xatolik:", err.description);
                 }
@@ -41,13 +41,15 @@ module.exports = (bot) => {
 
     bot.on("message:location", async (ctx) => {
         try {
-            const { latitude, longitude } = ctx.message.location;
-            const apiKey = process.env.WEATHER_API_KEY;
+            if (!ctx.session.awaitingWeather) return;
+            ctx.session.awaitingWeather = false
+            const { latitude, longitude } = ctx.message.location
+
+            const apiKey = process.env.WEATHER_API_KEY
 
             const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=uz`;
-
             const res = await fetch(url);
-            const data = await res.json();
+            const data = await res.json()
 
             if (data.cod !== 200) {
                 return ctx.reply("❌ Ob-havo ma'lumotini olishda xatolik yuz berdi.");
@@ -71,10 +73,12 @@ module.exports = (bot) => {
         const text = ctx.message.text;
 
         if (text === "⬅️ Back") {
+            ctx.session.awaitingWeather = false;
             await ctx.reply("⚡️ Other functions:", {
                 reply_markup: otherFunctionButtons,
                 remove_keyboard: true
             });
         }
+
     });
 };

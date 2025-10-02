@@ -14,16 +14,23 @@ const bot = new Bot(process.env.BOT_TOKEN)
 bot.use(session({
     initial: () => ({
         awaitingAI: false,
+        awaitingTTS: false,
+        awaitingWeather: false,
     }),
 }));
+
 
 bot.command("start", startCommand)
 
 // Handlers
 bot.on("message:contact", contactHandler)
-bot.on("message", messageHandler)
 callbackHandler(bot, mainMenuKeyboard)
-require("./features/weather")(bot);
+bot.filter(
+    (ctx) => ctx.message && !ctx.message.location,
+    messageHandler
+);
+
+require("./features/weather.js")(bot);
 
 // ✅ GeminiAI
 require("./features/geminiAI").setupAI(bot);

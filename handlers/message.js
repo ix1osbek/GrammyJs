@@ -8,6 +8,11 @@ const { handleTTS } = require("../features/tts.js")
  * @param {import("grammy").Context} ctx
  */
 module.exports = async (ctx) => {
+
+    if (ctx.message?.location) {
+        return; // locationni boshqa handler (weather.js)ga qoldiramiz
+    }
+
     const text = ctx.message?.text;
     const name = ctx.from.first_name || "Do'stim";
     const profileLink = ctx.from.username
@@ -71,6 +76,9 @@ module.exports = async (ctx) => {
     }
 
     // 🔹 Default javob
+    if (ctx.session?.awaitingWeather) {
+        return;
+    }
     await ctx.react("👀");
     await ctx.replyWithAnimation(
         "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNjU0d2poeHh5OWxnejVzNTJ4cXRtcGEza2k0YzRiODQ2N3dzajJ3aSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/8L0Pky6C83SzkzU55a/giphy.gif"

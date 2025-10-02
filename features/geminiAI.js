@@ -66,13 +66,23 @@ async function handleAI(ctx) {
 
     // ❌ Faqat text qabul qilamiz
     if (!ctx.message || !ctx.message.text) {
-        await ctx.reply("❌ Iltimos, savolingizni <b>matn</b> ko‘rinishida yuboring.", {
+        const warnMsg = await ctx.reply("❌ Iltimos, savolingizni <b>matn</b> ko‘rinishida yuboring.", {
             parse_mode: "HTML",
             reply_markup: keyboard
         });
-        ctx.session.awaitingAI = true
+
+        ctx.session.awaitingAI = true;
+
+        try {
+            await ctx.api.deleteMessage(ctx.chat.id, warnMsg.message_id - 2);
+        } catch (err) {
+            console.error("❌ O‘chirishda xatolik:", err.description);
+        }
+
         return;
     }
+
+
 
     const userPrompt = ctx.message.text.trim();
     const blocked = ["📄 Resume", "ℹ️ About", "⬅️ Back", "📱 Social networks", "⚡️ Other functions"];
