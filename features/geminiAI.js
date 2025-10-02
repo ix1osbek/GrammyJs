@@ -61,7 +61,7 @@ async function handleAI(ctx) {
         .text("♻️ Qayta so'rash", "ai")
         .row()
         .text("⬅️ Orqaga", "back2");
-        
+
     if (!ctx.session || !ctx.session.awaitingAI) return;
 
     // ❌ Faqat text qabul qilamiz
@@ -177,6 +177,7 @@ Foydalanuvchi savoli: ${userPrompt}`;
 
 
 // 🔹 Callback tugmalar
+// 🔹 Callback tugmalar
 function setupAI(bot) {
     bot.callbackQuery("ai", async (ctx) => {
         await ctx.answerCallbackQuery();
@@ -185,10 +186,19 @@ function setupAI(bot) {
         const chatId = ctx.chat.id;
         const currentMsgId = ctx.update.callback_query.message.message_id;
 
+        // ⬅️ Eski xabarni o‘chirish
         try {
             await ctx.api.deleteMessage(chatId, currentMsgId);
         } catch (e) {
             console.log(`Xabarni o‘chirishda xatolik:`, e);
+        }
+
+        // Agar sessionda oldingi xabar saqlangan bo‘lsa uni ham o‘chir
+        if (ctx.session.lastMessageId) {
+            try {
+                await ctx.api.deleteMessage(chatId, ctx.session.lastMessageId);
+            } catch (e) { }
+            ctx.session.lastMessageId = null;
         }
 
         // 🔹 AI savol olish xabarini yuborish
@@ -199,8 +209,23 @@ function setupAI(bot) {
                 reply_markup: new InlineKeyboard().text("❌ Bekor qilish", "back2"),
             }
         );
+
         ctx.session.lastMessageId = msg.message_id;
     });
+
+    // 🔹 Orqaga tugmasi (AI uchun)
+    bot.callbackQuery("back2", async (ctx) => {
+        await ctx.answerCallbackQuery();
+        ctx.session.awaitingAI = false;
+
+        // Eski keyboardni o‘chir
+        try {
+            await ctx.api.deleteMessage(ctx.chat.id, ctx.callbackQuery.message.message_id);
+        } catch (e) { }
+
+        await ctx.reply("⬅️ AI bekor qilindi.");
+    });
 }
+
 
 module.exports = { setupAI, handleAI };

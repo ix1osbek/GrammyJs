@@ -1,18 +1,15 @@
+const { otherFunctionButtons } = require("../keyboards/inline");
+
 /**
  * @param {import("grammy").Bot} bot
  */
 module.exports = (bot, mainMenuKeyboard) => {
+    // 🔹 Oddiy "Back" tugmasi
     bot.callbackQuery("back", async (ctx) => {
         await ctx.answerCallbackQuery();
 
-        const chatId = ctx.chat.id
         try {
             await ctx.editMessageReplyMarkup({ reply_markup: null });
-        } catch (err) {
-            console.log("Inline tugmalarni tozalashda xatolik:", err.description);
-        }
-
-        try {
             await ctx.deleteMessage();
         } catch (err) {
             console.log("Callback xabarni o'chirishda xatolik:", err.description);
@@ -20,6 +17,23 @@ module.exports = (bot, mainMenuKeyboard) => {
 
         await ctx.reply("⬅️ Asosiy menyu:", {
             reply_markup: mainMenuKeyboard,
+        });
+    });
+
+    // 🔹 AI uchun "Back2" tugmasi
+    bot.callbackQuery("back2", async (ctx) => {
+        await ctx.answerCallbackQuery();
+        ctx.session.awaitingAI = false;
+
+        try {
+            await ctx.editMessageReplyMarkup({ reply_markup: null });
+            await ctx.deleteMessage();
+        } catch (err) {
+            console.log("Callback xabarni o'chirishda xatolik:", err.description);
+        }
+
+        await ctx.reply("O'zingizga kerakli bo'limdan foydalanishingiz mumkin 💣", {
+            reply_markup: otherFunctionButtons,
         });
     });
 };

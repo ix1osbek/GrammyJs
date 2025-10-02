@@ -27,7 +27,7 @@ require("./features/weather")(bot);
 
 // ✅ GeminiAI
 require("./features/geminiAI").setupAI(bot);
-setupBack(bot, otherFunctionButtons);
+setupBack(bot, mainMenuKeyboard);
 const { setupTTS, handleTTS } = require("./features/tts.js");
 setupTTS(bot);
 

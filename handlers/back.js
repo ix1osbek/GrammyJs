@@ -1,21 +1,28 @@
 function setupBack(bot, mainMenuKeyboard) {
     bot.callbackQuery(["back", "back2"], async (ctx) => {
         await ctx.answerCallbackQuery();
+
+        // 🔹 Session flaglarni reset
         ctx.session.awaitingAI = false;
+        ctx.session.awaitingTTS = false;
+
+        // 🔹 Inline keyboardni tozalash
+        try {
+            await ctx.editMessageReplyMarkup({ reply_markup: null });
+        } catch (e) {
+            console.log("ReplyMarkup tozalashda xatolik:", e.description);
+        }
 
         try {
-            // Eski xabarni tahrirlab menyu chiqarish
-            await ctx.editMessageText("O'zingizga kerakli bo'limdan foydalanishingiz mumkin 💣", {
-                reply_markup: mainMenuKeyboard,
-            });
+            await ctx.deleteMessage();
         } catch (e) {
-            console.log("Xabarni tahrirlashda xatolik:", e);
-
-            // Agar xabar tahrirlanmasa – yangi xabar yuboramiz
-            await ctx.reply("O'zingizga kerakli bo'limdan foydalanishingiz mumkin 💣", {
-                reply_markup: mainMenuKeyboard,
-            });
+            console.log("Xabarni o‘chirishda xatolik:", e.description);
         }
+
+        // 🔹 Har doim asosiy menyuni qaytarish
+        await ctx.reply("⬅️ Siz asosiy menyuga qaytdingiz.", {
+            reply_markup: mainMenuKeyboard,
+        });
     });
 }
 
