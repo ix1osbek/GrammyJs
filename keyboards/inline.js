@@ -31,7 +31,9 @@ const socialNetworks = new InlineKeyboard()
 
 const otherFunctionButtons = new InlineKeyboard()
     .text("🌤 Ob-havo", "weather")
-    .text("🤖 AI yordamchi" , "ai")
+    .text("🤖 AI yordamchi", "ai")
+    .row()
+    .text("🖥 Online meeting belgilash", "meet")
     .row()
     .text("⬅️ Back menu", "back")
 module.exports = {
