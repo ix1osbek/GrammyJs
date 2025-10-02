@@ -2,6 +2,7 @@ const { aboutKeyboard, socialNetworks, otherFunctionButtons } = require("../keyb
 const path = require("path");
 const { InputFile } = require("grammy");
 const { handleAI } = require("../features/geminiAI.js");
+const { handleTTS } = require("../features/tts.js")
 
 /**
  * @param {import("grammy").Context} ctx
@@ -12,6 +13,11 @@ module.exports = async (ctx) => {
     const profileLink = ctx.from.username
         ? `https://t.me/${ctx.from.username}`
         : `tg://user?id=${ctx.from.id}`;
+
+    if (ctx.session?.awaitingTTS) {
+        ctx.session.awaitingTTS = false; // qayta ishlashning oldini olish
+        return handleTTS(ctx);
+    }
 
     // 🔹 AI rejimi
     if (ctx.session.awaitingAI) {

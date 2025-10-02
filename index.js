@@ -27,8 +27,17 @@ require("./features/weather")(bot);
 
 // ✅ GeminiAI
 require("./features/geminiAI").setupAI(bot);
-// Back handler
 setupBack(bot, otherFunctionButtons);
+const { setupTTS, handleTTS } = require("./features/tts.js");
+setupTTS(bot);
+
+bot.on("message", async (ctx) => {
+    if (ctx.session?.awaitingTTS) {
+        ctx.session.awaitingTTS = false;
+        return handleTTS(ctx);
+    }
+});
+// Back handler
 
 // Errors
 bot.catch((err) => {

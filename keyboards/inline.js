@@ -33,7 +33,7 @@ const otherFunctionButtons = new InlineKeyboard()
     .row()
     .url("🖥 Online meeting belgilash", process.env.MEETING_LINK)
     .row()
-    .text("📝 Matndan ovozga o'girish (TTS) AI")
+    .text("📝 Matndan ovozga o'girish (TTS) AI" , "tts")
     .row()
     .text("⬅️ Back menu", "back")
 module.exports = {

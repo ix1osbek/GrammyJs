@@ -9,7 +9,7 @@ function setupBack(bot, mainMenuKeyboard) {
                 reply_markup: mainMenuKeyboard,
             });
         } catch (e) {
-            console.log("Xabarni tahrirlashda xatolik:", e.description);
+            console.log("Xabarni tahrirlashda xatolik:", e);
 
             // Agar xabar tahrirlanmasa – yangi xabar yuboramiz
             await ctx.reply("O'zingizga kerakli bo'limdan foydalanishingiz mumkin 💣", {
