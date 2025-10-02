@@ -21,7 +21,7 @@ bot.command("start", startCommand)
 
 // Handlers
 bot.on("message:contact", contactHandler)
-bot.on("message:text", messageHandler)
+bot.on("message", messageHandler)
 callbackHandler(bot, mainMenuKeyboard)
 require("./features/weather")(bot);
 

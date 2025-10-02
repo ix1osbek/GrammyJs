@@ -56,8 +56,23 @@ async function sendLongMessage(ctx, text, keyboard = null) {
 // 🔹 AI Handler
 // 🔹 AI Handler
 async function handleAI(ctx) {
+
+    const keyboard = new InlineKeyboard()
+        .text("♻️ Qayta so'rash", "ai")
+        .row()
+        .text("⬅️ Orqaga", "back2");
+        
     if (!ctx.session || !ctx.session.awaitingAI) return;
-    if (!ctx.message || !ctx.message.text) return;
+
+    // ❌ Faqat text qabul qilamiz
+    if (!ctx.message || !ctx.message.text) {
+        await ctx.reply("❌ Iltimos, savolingizni <b>matn</b> ko‘rinishida yuboring.", {
+            parse_mode: "HTML",
+            reply_markup: keyboard
+        });
+        ctx.session.awaitingAI = true
+        return;
+    }
 
     const userPrompt = ctx.message.text.trim();
     const blocked = ["📄 Resume", "ℹ️ About", "⬅️ Back", "📱 Social networks", "⚡️ Other functions"];
@@ -73,16 +88,16 @@ async function handleAI(ctx) {
     }
 
     let percent = 0;
-    let waitMsg = await ctx.reply(`⏳ <b>Javob tayyorlanmoqda...</b> [▒▒▒▒▒▒▒▒▒▒] ${percent}% ,`, {
+    let waitMsg = await ctx.reply(`⏳ <b>Javob tayyorlanmoqda...</b> [▒▒▒▒▒▒▒▒▒▒] ${percent}%`, {
         parse_mode: "HTML"
     });
 
     const progressInterval = setInterval(async () => {
         if (percent < 90) {
-            percent += Math.floor(Math.random() * 10) + 5; // 5-15% oralig‘ida oshib boradi
+            percent += Math.floor(Math.random() * 10) + 5;
             if (percent > 90) percent = 90;
         } else if (percent < 99) {
-            percent += 1; // sekin-asta 91,92,93...
+            percent += 1;
         }
 
         const barLength = 10;
@@ -110,7 +125,6 @@ Foydalanuvchi savoli: ${userPrompt}`;
 
         const result = await model.generateContent(prompt);
 
-        // 🔹 Gemini javobini olish
         let rawText = "";
         if (result.response.text) {
             rawText = result.response.text();
@@ -119,11 +133,11 @@ Foydalanuvchi savoli: ${userPrompt}`;
                 .map(p => p.text || "")
                 .join(" ");
         }
+
         let answer = cleanHtmlForTelegram(rawText);
 
         clearInterval(progressInterval);
 
-        // 🔹 So‘nggi progress 100% qilib qo‘yish
         try {
             await ctx.api.editMessageText(ctx.chat.id, waitMsg.message_id,
                 `⏳ <b>Javob tayyorlanmoqda...</b> [██████████] 100%`, {
@@ -131,7 +145,6 @@ Foydalanuvchi savoli: ${userPrompt}`;
             });
         } catch (e) { }
 
-        // 🔹 Keyin xabarni o‘chirish
         setTimeout(async () => {
             try {
                 await ctx.api.deleteMessage(ctx.chat.id, waitMsg.message_id);
