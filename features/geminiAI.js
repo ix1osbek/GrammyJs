@@ -1,6 +1,5 @@
 const { InlineKeyboard } = require("grammy");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { otherFunctionButtons } = require("../keyboards/inline.js");
 const cleanHtmlForTelegram = require("../utils/htmlCleaner.js");
 
 // 🔹 Gemini sozlamalari
@@ -24,7 +23,9 @@ async function sendLongMessage(ctx, text, keyboard = null) {
     const paragraphs = text.split("\n\n");
     let currentChunk = "";
 
-    for (const para of paragraphs) {
+    for (let i = 0; i < paragraphs.length; i++) {
+        const para = paragraphs[i];
+
         if ((currentChunk + "\n\n" + para).length > MAX_LENGTH) {
             if (currentChunk) {
                 await ctx.reply(currentChunk, { parse_mode: "HTML" });
@@ -41,31 +42,42 @@ async function sendLongMessage(ctx, text, keyboard = null) {
         } else {
             currentChunk += (currentChunk ? "\n\n" : "") + para;
         }
-    }
 
-    if (currentChunk) {
-        await ctx.reply(currentChunk, {
-            parse_mode: "HTML",
-            reply_markup: keyboard,
-        });
+        // 🔹 Oxirgi bo‘lakka tugmalarni qo‘shish
+        if (i === paragraphs.length - 1 && currentChunk) {
+            await ctx.reply(currentChunk, {
+                parse_mode: "HTML",
+                reply_markup: keyboard,
+            });
+        }
     }
 }
 
 // 🔹 AI Handler
 async function handleAI(ctx) {
     // Faqat AI rejimida ishlasin
-    if (!ctx.session.awaitingAI) return;
+    if (!ctx.session || !ctx.session.awaitingAI) return;
 
-    // Faqat user yozgan textni qabul qilamiz, tugmalarni emas
+    // Faqat user yozgan textni qabul qilamiz
     if (!ctx.message || !ctx.message.text) return;
 
-    const userPrompt = ctx.message.text;
+    const userPrompt = ctx.message.text.trim();
 
     // Agar tugmalar matniga o‘xshasa — AI ga yubormaymiz
     const blocked = ["📄 Resume", "ℹ️ About", "⬅️ Back", "📱 Social networks", "⚡️ Other functions"];
-    if (blocked.includes(userPrompt)) return;
+    if (blocked.some(b => userPrompt === b)) return;
 
     ctx.session.awaitingAI = false;
+
+    // 🔹 Foydalanuvchi savol yuborganda oldingi xabarni o‘chirish (agar session’da saqlangan bo‘lsa)
+    if (ctx.session.lastMessageId) {
+        try {
+            await ctx.api.deleteMessage(ctx.chat.id, ctx.session.lastMessageId);
+        } catch (e) {
+            console.log("Oldingi xabarni o‘chirishda xatolik:", e.description);
+        }
+        ctx.session.lastMessageId = null;
+    }
 
     const waitMsg = await ctx.reply("⏳ Javob tayyorlanmoqda...");
     try {
@@ -80,7 +92,18 @@ async function handleAI(ctx) {
 Foydalanuvchi savoli: ${userPrompt}`;
 
         const result = await model.generateContent(prompt);
-        let answer = cleanHtmlForTelegram(result.response.text());
+
+        // 🔹 Gemini javobini xavfsiz olish
+        let rawText = "";
+        if (result.response.text) {
+            rawText = result.response.text();
+        } else if (result.response.candidates?.[0]?.content?.parts) {
+            rawText = result.response.candidates[0].content.parts
+                .map(p => p.text || "")
+                .join(" ");
+        }
+
+        let answer = cleanHtmlForTelegram(rawText);
 
         try {
             await ctx.api.deleteMessage(ctx.chat.id, waitMsg.message_id);
@@ -108,7 +131,6 @@ Foydalanuvchi savoli: ${userPrompt}`;
     }
 }
 
-
 // 🔹 Callback tugmalar
 function setupAI(bot) {
     bot.callbackQuery("ai", async (ctx) => {
@@ -118,26 +140,22 @@ function setupAI(bot) {
         const chatId = ctx.chat.id;
         const currentMsgId = ctx.update.callback_query.message.message_id;
 
-        // 🔹 Oldingi 2 ta xabarni o‘chirish
-        for (let i = 0; i < 2; i++) {
-            try {
-                await ctx.api.deleteMessage(chatId, currentMsgId - i);
-            } catch (e) {
-                console.log(`Xabarni o‘chirishda xatolik:`, e.description);
-            }
+        try {
+            await ctx.api.deleteMessage(chatId, currentMsgId);
+        } catch (e) {
+            console.log(`Xabarni o‘chirishda xatolik:`, e);
         }
 
         // 🔹 AI savol olish xabarini yuborish
-        await ctx.reply(
+        const msg = await ctx.reply(
             `<b>🤖 Savolingizni yozing, AI sizga javob qaytaradi.</b>\n\n<tg-spoiler>AI bepul versiyada ishlamoqda, javob tezligida muammo bo‘lishi mumkin.</tg-spoiler>`,
             {
                 parse_mode: "HTML",
                 reply_markup: new InlineKeyboard().text("❌ Bekor qilish", "back2"),
             }
         );
+        ctx.session.lastMessageId = msg.message_id;
     });
-
-
 }
 
 module.exports = { setupAI, handleAI };
