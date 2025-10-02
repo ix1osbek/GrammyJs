@@ -54,32 +54,49 @@ async function sendLongMessage(ctx, text, keyboard = null) {
 }
 
 // 🔹 AI Handler
+// 🔹 AI Handler
 async function handleAI(ctx) {
-    // Faqat AI rejimida ishlasin
     if (!ctx.session || !ctx.session.awaitingAI) return;
-
-    // Faqat user yozgan textni qabul qilamiz
     if (!ctx.message || !ctx.message.text) return;
 
     const userPrompt = ctx.message.text.trim();
-
-    // Agar tugmalar matniga o‘xshasa — AI ga yubormaymiz
     const blocked = ["📄 Resume", "ℹ️ About", "⬅️ Back", "📱 Social networks", "⚡️ Other functions"];
     if (blocked.some(b => userPrompt === b)) return;
 
     ctx.session.awaitingAI = false;
 
-    // 🔹 Foydalanuvchi savol yuborganda oldingi xabarni o‘chirish (agar session’da saqlangan bo‘lsa)
     if (ctx.session.lastMessageId) {
         try {
             await ctx.api.deleteMessage(ctx.chat.id, ctx.session.lastMessageId);
-        } catch (e) {
-            console.log("Oldingi xabarni o‘chirishda xatolik:", e.description);
-        }
+        } catch (e) { }
         ctx.session.lastMessageId = null;
     }
 
-    const waitMsg = await ctx.reply("⏳ Javob tayyorlanmoqda...");
+    let percent = 0;
+    let waitMsg = await ctx.reply(`⏳ <b>Javob tayyorlanmoqda...</b> [▒▒▒▒▒▒▒▒▒▒] ${percent}% ,`, {
+        parse_mode: "HTML"
+    });
+
+    const progressInterval = setInterval(async () => {
+        if (percent < 90) {
+            percent += Math.floor(Math.random() * 10) + 5; // 5-15% oralig‘ida oshib boradi
+            if (percent > 90) percent = 90;
+        } else if (percent < 99) {
+            percent += 1; // sekin-asta 91,92,93...
+        }
+
+        const barLength = 10;
+        const filled = Math.floor((percent / 100) * barLength);
+        const bar = "█".repeat(filled) + "▒".repeat(barLength - filled);
+
+        try {
+            await ctx.api.editMessageText(ctx.chat.id, waitMsg.message_id,
+                `⏳ <b>Javob tayyorlanmoqda...</b> [${bar}] ${percent}%`, {
+                parse_mode: "HTML"
+            });
+        } catch (e) { }
+    }, 1500);
+
     try {
         const prompt = `Siz yordamchi assistant bo'lib, foydalanuvchiga o'zbek tilida javob berasiz. 
 
@@ -93,7 +110,7 @@ Foydalanuvchi savoli: ${userPrompt}`;
 
         const result = await model.generateContent(prompt);
 
-        // 🔹 Gemini javobini xavfsiz olish
+        // 🔹 Gemini javobini olish
         let rawText = "";
         if (result.response.text) {
             rawText = result.response.text();
@@ -102,12 +119,24 @@ Foydalanuvchi savoli: ${userPrompt}`;
                 .map(p => p.text || "")
                 .join(" ");
         }
-
         let answer = cleanHtmlForTelegram(rawText);
 
+        clearInterval(progressInterval);
+
+        // 🔹 So‘nggi progress 100% qilib qo‘yish
         try {
-            await ctx.api.deleteMessage(ctx.chat.id, waitMsg.message_id);
+            await ctx.api.editMessageText(ctx.chat.id, waitMsg.message_id,
+                `⏳ <b>Javob tayyorlanmoqda...</b> [██████████] 100%`, {
+                parse_mode: "HTML"
+            });
         } catch (e) { }
+
+        // 🔹 Keyin xabarni o‘chirish
+        setTimeout(async () => {
+            try {
+                await ctx.api.deleteMessage(ctx.chat.id, waitMsg.message_id);
+            } catch (e) { }
+        }, 500);
 
         const keyboard = new InlineKeyboard()
             .text("♻️ Qayta so'rash", "ai")
@@ -115,9 +144,11 @@ Foydalanuvchi savoli: ${userPrompt}`;
             .text("⬅️ Orqaga", "back2");
 
         await sendLongMessage(ctx, answer, keyboard);
+
     } catch (err) {
         console.error("Gemini error:", err);
 
+        clearInterval(progressInterval);
         try {
             await ctx.api.deleteMessage(ctx.chat.id, waitMsg.message_id);
         } catch (e) { }
@@ -130,6 +161,7 @@ Foydalanuvchi savoli: ${userPrompt}`;
         });
     }
 }
+
 
 // 🔹 Callback tugmalar
 function setupAI(bot) {
