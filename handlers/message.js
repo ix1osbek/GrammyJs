@@ -34,7 +34,7 @@ module.exports = async (ctx) => {
         await ctx.react("⚡");
         const waitingMsg = await ctx.reply("⏳");
 
-        const filePath = path.resolve("./Ixlosbek-Erkinov-Rezyume.pdf");
+        const filePath = path.resolve("./Ixlosbek-Erkinov-Resume.pdf");
         const file = new InputFile(filePath);
 
         await ctx.replyWithDocument(file, {
